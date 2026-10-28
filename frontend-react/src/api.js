@@ -1,4 +1,4 @@
-// TODO FE-01~04: 공통 API 명세와 구현 체크리스트를 보고 완성하세요.
+// FE-01~04: JWT 로그인, 인증 헤더, 오류 처리 및 작성자 권한 UI 구현
 let session = { accessToken: "", user: null };
 export const getSession = () => session;
 export function clearSession() {
