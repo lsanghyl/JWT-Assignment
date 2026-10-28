@@ -1,94 +1,208 @@
-# 웹서비스설계 JWT 게시판 과제
+# JWT 인증 게시판
 
-React 또는 Vue 중 하나와 Express 또는 FastAPI 또는 Spring Boot 중 하나를 선택해 JWT 인증 게시판을 완성합니다. 프론트 2종 × 백엔드 3종의 총 6가지 조합을 지원합니다. 모든 조합은 동일한 API 규격과 평가 기준을 사용합니다. 한 가지 조합만 제출합니다.
+React와 Express를 활용해 구현한 웹서비스설계 JWT 인증 게시판 과제입니다.
 
-완성한 서비스는 본인 PC에서 프론트 빌드 결과와 백엔드를 함께 실행해야 합니다. GitHub는 코드·README·보고서 제출용입니다. 교수자가 저장소를 clone한 뒤 같은 절차로 로컬에서 재현할 수 있어야 합니다. 외부 서버·도메인·클라우드 배포는 요구하지 않습니다.
+## 작성자와 서비스 소개
 
-## 먼저 읽을 문서
+- **학번 / 이름:** 202212205 / 이상현
+- **서비스 목적과 대상 사용자:** 사용자가 게시글을 조회하고, 로그인 후 자신의 게시글을 작성·수정·삭제할 수 있는 웹 게시판입니다. JWT(JSON Web Token)를 이용해 사용자를 인증하고, 게시글 작성자와 로그인한 사용자를 비교해 수정·삭제 권한을 검사합니다. Alice와 Bob 테스트 계정을 이용하여 사용자별 접근 권한을 검증했습니다.
+- **선택한 기술:** React + Vite / Node.js + Express / SQLite(sql.js)
+- **주요 기능:** 공개 게시글 목록·상세 조회, 로그인, JWT 발급·검증, 게시글 작성·수정·삭제, 작성자 권한 검사, 토큰 만료 및 로그아웃, 입력값 검증
 
-1. `docs/01_과제공지.pdf`: 배포용 공지문. 같은 이름의 Markdown·Word 원본도 제공하며 요구사항은 동일합니다.
-2. `docs/02_API명세.md`: 모든 조합의 공통 계약, HTTP 상태·JSON code·응답 헤더
-3. `docs/03_구현체크리스트.md`: 준비부터 GitHub 제출까지 10단계의 상세 구현·검증 체크리스트
-4. `docs/04_보고서양식.docx`: 작성 가능한 보고서 양식, Markdown 원본도 제공
-5. `docs/05_테스트시나리오.md`: 수동 검증 및 보고서 증거
-6. `docs/06_제출용_README.md`: 학생 저장소의 루트 README 작성 양식
-7. `docs/07_로컬실행안내.md`: 운영체제별 설치와 로컬 배포·실행·종료 절차
+## 보고서와 테스트 증거
 
-## 템플릿 선택
+- [구현 보고서 PDF](docs/report.pdf)
+- [테스트 증거 이미지](docs/evidence/)
 
-| 프론트 | 백엔드 | 데이터 저장 |
-|---|---|---|
-| frontend-react | backend-express | SQLite 파일, sql.js |
-| frontend-react | backend-fastapi | SQLite 파일, Python 표준 라이브러리 |
-| frontend-react | backend-spring | SQLite 파일, Spring JDBC |
-| frontend-vue | backend-express | SQLite 파일, sql.js |
-| frontend-vue | backend-fastapi | SQLite 파일, Python 표준 라이브러리 |
-| frontend-vue | backend-spring | SQLite 파일, Spring JDBC |
+## 프로젝트 구조
 
-수업 코드를 이어 쓰고 싶다면 Vue + Express를 선택할 수 있습니다. 다른 조합도 동일하게 평가합니다. 선택한 폴더 2개를 복사해서 작업하거나 전체 압축을 풀고 해당 폴더에서 실행하세요. 폴더 이름을 바꾸어도 되며 문서의 경로를 함께 고치세요.
+```text
+JWT-Assignment/
+├── README.md
+├── .gitignore
+├── frontend-react/
+│   ├── package.json
+│   ├── package-lock.json
+│   └── src/
+├── backend-express/
+│   ├── package.json
+│   ├── package-lock.json
+│   └── src/
+└── docs/
+    ├── report.pdf
+    └── evidence/
+```
 
-## 빠른 시작
+## 실행 환경
 
-선택한 백엔드 README대로 먼저 실행합니다. 모든 백엔드는 `http://127.0.0.1:8000`을 사용하므로 한 번에 하나만 실행합니다.
+| 항목 | 사용 버전 |
+|---|---|
+| 운영체제 | Windows 11 |
+| Node.js | 24.21.0 |
+| React / React DOM | 19.3.0 |
+| Vite | 8.3.4 |
+| Express | 5.3.0 |
+| jsonwebtoken | ^9.0.3 |
+| sql.js | 1.14.2 |
+| dotenv | 18.0.7 |
+| 데이터 저장 | SQLite 파일 |
 
-다른 터미널에서 선택한 프론트 폴더로 이동해 실행합니다.
+Node.js 최소 요구 버전은 20.19.0입니다.
 
-```sh
+## 설치와 실행
+
+### 1. 저장소 복제
+
+```bash
+git clone https://github.com/lsanghyl/JWT-Assignment.git
+cd JWT-Assignment
+```
+
+### 2. 백엔드 준비와 실행
+
+```bash
+cd backend-express
 npm ci
+```
+
+JWT 서명을 위해 `JWT_SECRET` 환경변수를 설정해야 합니다. 64자리 16진수 키를 새로 생성합니다.
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+생성한 키는 공개 저장소에 기록하지 않습니다.
+
+`backend-express/.env` 파일을 로컬에 생성하고 다음 내용을 작성합니다.
+
+```dotenv
+JWT_SECRET=여기에_새로_생성한_64자리_16진수_키
+TOKEN_TTL=90
+```
+
+실제 키를 입력한 뒤 백엔드를 실행합니다.
+
+```bash
+npm start
+```
+
+개발 중에는 다음 명령을 사용할 수 있습니다.
+
+```bash
 npm run dev
 ```
 
-브라우저에서 `http://127.0.0.1:5173`을 엽니다. 프론트의 `/api` 요청은 Vite 개발 프록시가 8000번 백엔드로 전달합니다. 개발 실습에서는 별도 CORS 설정이 필요하지 않습니다. 포트 변경 시 `vite.config.js`의 프록시 목적지도 함께 수정하세요.
+- **백엔드 주소:** http://127.0.0.1:8000
+- **JWT_SECRET:** 64자리 16진수 키 필수
+- **TOKEN_TTL:** 기본 90초, 초 단위 양의 정수
+- **만료 테스트:** `TOKEN_TTL=3`으로 변경 후 백엔드 재시작
 
-모든 조합에서 **SQLite 파일 DB를 필수로 사용**합니다. 기본 파일은 선택한 백엔드 폴더의 `data/board.sqlite`이며 자동 생성됩니다.
+백엔드 실행 후 로그인 API 등을 통해 정상 작동 여부를 확인할 수 있습니다.
 
-처음에는 게시글이 없습니다. 글 등록 → 목록 → 상세 → 수정 → 삭제를 먼저 확인하세요. 두 테스트 계정은 서버 시작 시 준비되며 게시글은 DB 파일에 유지됩니다.
+### 3. 프론트엔드 빌드와 로컬 실행
 
-- Alice: `alice@class.test` / `Classroom!2026`
-- Bob: `bob@class.test` / `Classroom!2026`
+백엔드를 실행한 상태에서 새로운 터미널을 엽니다.
 
-## 로컬 배포와 최종 실행
+프로젝트 루트에서 다음 명령어를 실행합니다.
 
-백엔드를 켜 둔 상태에서 프론트 개발 서버를 Ctrl+C로 종료하고, 선택한 프론트 폴더에서 실행합니다.
-
-```sh
+```bash
+cd frontend-react
+npm ci
 npm run build
 npm run preview
 ```
 
-http://127.0.0.1:4173 에서 빌드된 서비스를 확인합니다. `/api`는 8000번 백엔드로 프록시됩니다. 개발 중에는 `npm run dev`와 5173번 주소를 사용하고, 제출 전에는 빌드 결과와 4173번 주소로 전체 기능을 검증하세요. 의존성 설치에는 인터넷이 필요하지만, 제공 서비스 실행에는 클라우드 API나 별도 DB 서버가 필요하지 않습니다.
+브라우저 접속 주소:
 
-## 시작 코드와 제출 완성본의 차이
+http://127.0.0.1:4173
 
-시작 코드의 로그인 기능은 미완성이므로 정상 계정으로 API에 로그인해도 501 NOT_IMPLEMENTED가 반환됩니다. 프론트 로그인 버튼도 구현 안내 메시지를 표시합니다. 이는 의도된 상태입니다.
+개발 서버는 다음과 같이 실행합니다.
 
-시작 코드에서는 `currentUserId`가 데모 ID 1을 반환하고 `assertOwner`가 아무 검사도 하지 않습니다. 따라서 로그인하지 않아도 글을 쓸 수 있고, 모든 글을 수정·삭제할 수 있습니다. 학생은 이 임시 동작을 실제 JWT 검증과 권한 검사로 교체해야 합니다. 시작 코드를 완성본으로 제출하지 마세요. 로컬 실습용이며 공개 서버에 그대로 배포하지 않습니다.
-
-## 실행 환경
-
-- 모든 프론트와 Express: Node.js 20.19 이상. 실습에서는 22.12 이상 LTS도 사용 가능합니다.
-- FastAPI: Python 3.10 이상. Python 3.12에서 검증합니다.
-- Spring Boot: JDK 17 이상, 제공 Maven Wrapper 사용. 최초 실행에는 인터넷 연결이 필요합니다.
-- 각 폴더에 고정한 직접 의존성 버전과 lock 파일을 사용하세요. `npm ci`는 package-lock.json을 사용합니다.
-
-## 자체 확인
-
-선택한 백엔드를 켜 둔 뒤 과제 루트에서 실행합니다. Python 추가 패키지는 필요 없습니다.
-
-```sh
-python3 tools/check_api.py --mode starter
-# JWT와 권한 구현을 마친 뒤
-python3 tools/check_api.py --mode final
-# 만료 검사 포함: 별도 터미널에서 TOKEN_TTL=3으로 서버를 재시작한 뒤
-python3 tools/check_api.py --mode final --expiry
+```bash
+npm run dev
 ```
 
-Windows에서는 `python3` 대신 `py`를 사용할 수 있습니다. starter 검사는 시작 코드가 실행되는지만 확인합니다. final 검사는 핵심 API 동작을 확인하며, 보고서의 수동 시나리오와 화면 검사를 대신하지 않습니다. 검사는 임시 글을 생성하고 정상 완료 시 삭제합니다. 실패 시 남은 시험 글은 화면에서 삭제하세요.
+개발 서버 주소는 http://127.0.0.1:5173 입니다.
 
-## 제출
+프론트엔드의 `/api` 요청은 Vite 프록시를 통해 8000번 백엔드로 전달됩니다. 포트를 변경할 경우 `vite.config.js`의 프록시 설정도 수정해야 합니다.
 
-GitHub 저장소에 선택한 프론트·백엔드 소스, 루트 README.md, 작성한 보고서 PDF와 테스트 증거를 올립니다. 저장소 URL과 제출 기준 커밋 SHA를 LMS에 제출합니다. 마감일은 LMS 안내를 따릅니다.
+프론트엔드와 백엔드는 각각의 터미널에서 `Ctrl+C`로 종료합니다. 프론트엔드 코드를 수정한 경우 다시 빌드한 뒤 preview를 실행하고, 백엔드 코드를 수정한 경우 서버를 재시작합니다.
 
-`docs/06_제출용_README.md`를 학생 저장소의 루트 README.md로 복사하고 실제 서비스 내용으로 작성하세요. README에는 실행 방법, 구현 완료 범위, 보고서·테스트 증거 링크, AI 활용 요약이 필요합니다. 보고서는 `docs/report.pdf`, 증거는 `docs/evidence/`에 정리할 수 있습니다.
+### 4. 테스트 계정과 DB
 
-교수자가 열람·복제할 수 있는 공개 또는 비공개 저장소를 사용합니다. 새 폴더에 clone하여 README만으로 실행하고 GitHub에서 문서 링크가 열리는지 확인하세요. `node_modules`, `.venv`, `target`, `.env`, 실제 JWT, DB 파일은 커밋하지 않습니다. 초기 DB가 없어도 자동으로 실행되어야 합니다. 학생 배포용 ZIP은 시작 자료이며, 완성 과제는 GitHub로 제출합니다.
+| 사용자 | 이메일 | 실습용 비밀번호 |
+|---|---|---|
+| Alice | alice@class.test | Classroom!2026 |
+| Bob | bob@class.test | Classroom!2026 |
+
+- **DB 종류:** SQLite(sql.js)
+- **기본 DB 파일:** `backend-express/data/board.sqlite`
+- **DB 생성:** 서버 시작 시 필요한 DB 파일과 테스트 계정 준비
+- **DB 초기화:** 백엔드를 종료하고 실습용 `data/board.sqlite` 파일을 삭제한 뒤 재시작
+- **데이터 유지:** 서버를 재시작해도 저장한 게시글이 유지되는 것을 확인함(T15)
+
+실제 DB 파일은 GitHub에 제출하지 않습니다.
+
+## 구현 완료 범위
+
+| 기능 | 완료 여부 | 주요 파일 또는 함수 |
+|---|---|---|
+| 공개 목록과 상세 조회 | 완료 | Express 게시글 API, React 게시판 화면 |
+| 로그인과 JWT 발급 | 완료 | `auth.js`의 `issueToken()` |
+| JWT 검증과 내 정보 조회 | 완료 | `auth.js`의 `currentUserId()` |
+| 글 작성과 작성자 저장 | 완료 | Express 게시글 작성 API |
+| 본인 글 수정·삭제 | 완료 | `auth.js`의 `assertOwner()` |
+| 토큰 만료와 로그아웃 | 완료 | `auth.js`, `frontend-react/src/api.js` |
+| 입력 오류와 권한 오류 처리 | 완료 | Express API의 오류 응답 처리 |
+
+## 테스트 방법과 결과 요약
+
+- **백엔드 자동 검사:** BE-01 총 23개 PASS
+- **프론트엔드 자동 검사:** FE-04 총 5개 PASS
+- **수동 검증:** T01~T17 시나리오 수행
+- **권한 검사:** Alice의 게시글을 Bob이 수정하거나 삭제할 경우 `403 FORBIDDEN` 반환
+- **정상 응답:** `200 OK`, `201 Created`, `204 No Content`
+- **오류 응답:** `400 BAD_INPUT`, `401`, `403 FORBIDDEN`, `404 NOT_FOUND`
+- **토큰 검증:** 토큰 누락, 서명 변조, 만료 상황에서 접근 거부 확인
+- **데이터 유지:** 백엔드 재시작 후 게시글 유지 확인
+- **204 응답:** 삭제 성공 시 빈 본문 확인
+
+201 응답의 `Location` 헤더와 401 응답의 `WWW-Authenticate` 헤더는 별도 검증이 완료되지 않았으므로 확인된 결과로 기재하지 않습니다.
+
+전체 테스트 과정과 결과는 [구현 보고서](docs/report.pdf), 화면 및 API 증거는 [테스트 증거 폴더](docs/evidence/)를 참고합니다.
+
+## 핵심 구현 설명
+
+1. 사용자가 이메일과 비밀번호로 로그인하면 백엔드가 계정 정보를 검증합니다.
+2. 인증에 성공하면 `issueToken()`에서 JWT를 발급합니다.
+3. 프론트엔드는 발급받은 JWT를 메모리에 보관하고 보호 API 요청에 `Authorization: Bearer` 헤더로 전달합니다.
+4. 백엔드의 `currentUserId()`는 토큰 서명, 알고리즘, 발급자, 대상, 만료 시간 및 사용자 정보를 검증합니다.
+5. 게시글 수정·삭제 시 `assertOwner()`가 로그인한 사용자와 게시글 작성자를 비교합니다.
+6. 권한이 없으면 `403 FORBIDDEN`, 토큰이 유효하지 않으면 `401` 오류를 반환합니다.
+7. 로그아웃하거나 인증이 만료되면 프론트엔드에서 보관 중인 토큰을 제거합니다.
+
+## AI 활용 요약과 참고 자료
+
+- **AI 사용 여부:** 사용
+- **사용 도구:** ChatGPT
+- **활용 목적:** JWT 인증 및 권한 검사 구현 보조, 오류 원인 분석, 테스트 시나리오 점검, 보고서 작성 보조
+- **직접 검증:** API 응답 상태 및 오류 코드 확인, Alice/Bob 권한 검사, 토큰 변조·만료 테스트, 프론트엔드 기능 확인
+- **상세 활용 기록:** 구현 보고서의 05장 참고
+
+참고 자료:
+
+- 웹서비스설계 수업 과제 공지 및 API 명세
+- 웹서비스설계 구현 체크리스트 및 테스트 시나리오
+- [Express 공식 문서](https://expressjs.com/)
+- [React 공식 문서](https://react.dev/)
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
+
+## 제출 확인
+
+- [o] README 내용 및 실제 실행 명령 확인
+- [o] 새 폴더에서 clone 후 설치·환경설정·빌드·실행
+- [o] 4173번 빌드 화면에서 필수 기능 확인
+- [o] GitHub 보고서와 증거 링크 확인
+- [o] 저장소 열람·복제 권한 확인
+- [o] 실제 비밀키·토큰·DB·node_modules 미포함 확인
+- [o] 최종 커밋 SHA 확인 후 LMS 제출
